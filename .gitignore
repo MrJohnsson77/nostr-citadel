@@ -1,0 +1,7 @@
+.idea
+build
+*.db
+*.db-shm
+*.db-wal
+_lab_
+build.sh
