@@ -40,13 +40,13 @@ func SetAdmin(pubKey string) {
 		_, _ = DB.Exec(`DELETE FROM whitelist where admin = 1`)
 		_, _ = DB.Exec(`DELETE FROM event where kind = 0 and pubkey = ?`, admin.PubKey)
 		_, _ = DB.Exec(`INSERT into whitelist (pubkey, created_at, sync, last_synced, admin) values ($1,$2,$3,$4,$5)`,
-			pubKey, time.Now().Unix(), 1, time.Now().Add(time.Duration(-24*viper.GetInt("relay_config.sync_days_on_init"))*time.Hour).Unix(), 1)
+			pubKey, time.Now().Unix(), 1, time.Now().Add(time.Duration(-24*viper.GetInt("sync_config.sync_days_on_init"))*time.Hour).Unix(), 1)
 	}
 }
 
 func AddWhitelist(pubKey string) {
 	_, _ = DB.Exec(`INSERT into whitelist (pubkey, created_at, sync, last_synced, admin) values ($1,$2,$3,$4,$5) on conflict (pubkey) DO NOTHING`,
-		pubKey, time.Now().Unix(), 0, time.Now().Add(time.Duration(-24*viper.GetInt("relay_config.sync_days_on_init"))*time.Hour).Unix(), 0)
+		pubKey, time.Now().Unix(), 0, time.Now().Add(time.Duration(-24*viper.GetInt("sync_config.sync_days_on_init"))*time.Hour).Unix(), 0)
 }
 
 func RemoveWhitelist(pubKey string) {
@@ -75,7 +75,7 @@ func GetWhitelisted(pubKey string) (wl Whitelisted) {
 func GetPlebsToSync() (plebs []Pleb, err error) {
 	var wl []Pleb
 
-	wlSync := viper.GetBool("whitelist_config.sync_all_whitelisted")
+	wlSync := viper.GetBool("sync_config.sync_whitelisted")
 	query := `SELECT wl.pubkey as pubkey,coalesce(content,
     '{"wss://nostr.fmt.wiz.biz":{"write":true,"read":true},"wss://relay.snort.social":{"write":true,"read":true},"wss://puravida.nostr.land":{"write":true,"read":true},"wss://nos.lol":{"write":true,"read":true},"wss://relay.damus.io":{"write":true,"read":true},"wss://nostr.milou.lol":{"write":true,"read":true},"wss://relay.nostr.bg":{"write":true,"read":true},"wss://bitcoiner.social":{"write":true,"read":true},"wss://relay.current.fyi":{"write":true,"read":true},"wss://nostr.zebedee.cloud":{"write":true,"read":true},"wss://eden.nostr.land":{"write":true,"read":true}}') as content,
     coalesce(last_synced,1672527600000) as lastsynced from whitelist wl LEFT JOIN (SELECT * from event WHERE kind = 3) as e on wl.pubkey = e.pubkey`

@@ -32,8 +32,8 @@ var (
 // StartImporter Todo: Redo logic and structure.
 func StartImporter() {
 
-	numberOfWorkers = viper.GetInt("importer.workers")
-	numberOfSubWorkers = viper.GetInt("importer.fetchers")
+	numberOfWorkers = viper.GetInt("sync_config.workers")
+	numberOfSubWorkers = viper.GetInt("sync_config.fetchers")
 
 	go func() {
 		for {
