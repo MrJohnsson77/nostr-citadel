@@ -110,7 +110,8 @@ func GetEventsQuery(filter *nostr.Filter) (events []nostr.Event, err error) {
 			if err != nil || len(parsed) != 32 {
 				continue
 			}
-			likeIds = append(likeIds, fmt.Sprintf("id LIKE '%x%%'", parsed))
+			//likeIds = append(likeIds, fmt.Sprintf("id LIKE '%x%%'", parsed))
+			likeIds = append(likeIds, fmt.Sprintf("id = '%x'", parsed))
 		}
 		if len(likeIds) == 0 {
 			// ids being [] mean you won't get anything
@@ -133,7 +134,8 @@ func GetEventsQuery(filter *nostr.Filter) (events []nostr.Event, err error) {
 			if err != nil || len(parsed) != 32 {
 				continue
 			}
-			likeKeys = append(likeKeys, fmt.Sprintf("pubkey LIKE '%x%%'", parsed))
+			//likeKeys = append(likeKeys, fmt.Sprintf("pubkey LIKE '%x%%'", parsed))
+			likeKeys = append(likeKeys, fmt.Sprintf("pubkey = '%x'", parsed))
 		}
 		if len(likeKeys) == 0 {
 			// authors being [] mean you won't get anything
@@ -214,6 +216,9 @@ func GetEventsQuery(filter *nostr.Filter) (events []nostr.Event, err error) {
 	FROM event WHERE ` +
 		strings.Join(conditions, " AND ") +
 		" ORDER BY created_at DESC LIMIT ?")
+
+	fmt.Printf("%v\n", query)
+	fmt.Printf("%v\n", params)
 
 	rows, err := DB.Query(query, params...)
 	if err != nil && err != sql.ErrNoRows {
