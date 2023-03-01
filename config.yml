@@ -3,7 +3,7 @@ relay_config:
   description: "Nostr Citadel - The Sovereign Relay"
   admin_npub: ""
   admin_email: ""
-  relay_url: ""
+  relay_url: "http://localhost:1337"
   behind_proxy: false
   public_relay: false
   dashboard: true
