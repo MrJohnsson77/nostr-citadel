@@ -217,8 +217,8 @@ func GetEventsQuery(filter *nostr.Filter) (events []nostr.Event, err error) {
 		strings.Join(conditions, " AND ") +
 		" ORDER BY created_at DESC LIMIT ?")
 
-	fmt.Printf("%v\n", query)
-	fmt.Printf("%v\n", params)
+	//fmt.Printf("%v\n", query)
+	//fmt.Printf("%v\n", params)
 
 	rows, err := DB.Query(query, params...)
 	if err != nil && err != sql.ErrNoRows {
