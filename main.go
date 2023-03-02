@@ -99,15 +99,16 @@ func main() {
 		if c.IsWebSocket() {
 			_ = m.HandleRequest(c.Response().Writer, c.Request())
 			return nil
-		}
-		nip11Request := c.Request().Header.Get("accept") == "application/nostr+json"
-		if nip11Request {
-			return c.JSON(http.StatusOK, handlers.NostrNip11())
 		} else {
-			if viper.GetBool("relay_config.dashboard") {
-				return c.HTML(http.StatusOK, socketHTML)
+			nip11Request := c.Request().Header.Get("accept") == "application/nostr+json"
+			if nip11Request {
+				return c.JSON(http.StatusOK, handlers.NostrNip11())
 			} else {
-				return c.String(http.StatusOK, "Nostr Citadel")
+				if viper.GetBool("relay_config.dashboard") {
+					return c.HTML(http.StatusOK, socketHTML)
+				} else {
+					return c.String(http.StatusOK, "Nostr Citadel")
+				}
 			}
 		}
 	})
