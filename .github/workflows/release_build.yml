@@ -1,0 +1,53 @@
+name: Create Release & Binaries
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  build-and-release:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set Version
+        id: set_version
+        run: |
+          echo "version=$(echo $GITHUB_REF | cut -d / -f 3)" >> $GITHUB_ENV
+      - name: Compile Binaries
+        uses: crazy-max/ghaction-xgo@v2
+        with:
+          xgo_version: latest
+          go_version: 1.19
+          dest: /home/runner/work/nostr-citadel/builds
+          race: false
+          prefix: nostr-citadel-${{ env.version }}
+      - name: Compress Release
+        run: zip -r /home/runner/work/nostr-citadel/nostr-citadel-binaries-${{ env.version }}.zip /home/runner/work/nostr-citadel/builds/*
+      - name: Delete release if any
+        uses: Archaholic/action-delete-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+        with:
+          tag_name: ${{ env.version }}
+      - name: Update tag
+        uses: EndBug/latest-tag@latest
+        with:
+          ref: ${{ env.version }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.version }}
+          prerelease: true
+          tag_name: ${{ env.version }}
+          generate_release_notes: true
+          files: |
+            README.md
+            CHANGELOG.md
+            config.yml
+            /home/runner/work/nostr-citadel/nostr-citadel-binaries-${{ env.version }}.zip 
+            /home/runner/work/nostr-citadel/builds/*
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries
+          path: /home/runner/work/nostr-citadel/builds/*
