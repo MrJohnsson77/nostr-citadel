@@ -43,10 +43,11 @@ Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspir
   * --port
   * --whitelist-add
   * --whitelist-rem (Will also delete all events saved for that npub)
-- [x] Simple Local Dashboard
+- [x] Simple Dashboard
   * Grid of profiles saved on the relay.
   * Vanilla and minimalistic.
   * Disable in config
+- [ ] Bootstrap relay list
 - [ ] More Cli
   * More cli things  
 - [ ] Export and Import
