@@ -1,0 +1,34 @@
+admin:
+  npub: ""
+  email: ""
+relay:
+  name: "Nostr Citadel"                                   # Citadel Name
+  description: "Nostr Citadel - The Sovereign Relay"      # Description
+  relay_url: "https://relay.mrjohnsson.net"               # URL to the relay
+  behind_proxy: true                                      # Behind nginx or other proxy
+  public_relay: true                                      # Allow anyone to post (If false only whitelisted npubs can post)
+  paid_relay: false                                       # Only allow paid and/or whitelisted users to post events
+  ticket_price: 1000                                      # Price in sats for access
+  limits:
+    response_event_limit: 2000                            # Max events to send client
+dashboard:
+  enabled: true
+processing:
+  cln:
+    active: false
+    node_id: ""
+    rune: ""
+    host: ""
+  lnd: # Not Supported yet.
+    active: false
+    node_id: ""
+    macaroon: ""
+    host: ""
+importer:
+  workers: 5
+  fetchers: 30
+  import_days_on_init: 30                               # How many days of event to import on first start.
+  import_whitelisted: false                             # Also sync all events for whitelisted users, not only admin.
+database:
+  name: "citadel.db"
+bootstrap_relay: "wss://relay.mrjohnsson.net"           # Relay to start importing admin profile from.

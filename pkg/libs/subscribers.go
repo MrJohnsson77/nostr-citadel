@@ -1,4 +1,4 @@
-package handlers
+package libs
 
 import (
 	"encoding/json"
@@ -11,19 +11,19 @@ type Subscriber struct {
 	filters nostr.Filters
 }
 
-var subscribers = make(map[*melody.Session]map[string]*Subscriber)
+var Subscribers = make(map[*melody.Session]map[string]*Subscriber)
 var subscriberMutex = sync.Mutex{}
 
-func setSubscriber(id string, ws *melody.Session, filters nostr.Filters) {
+func SetSubscriber(id string, ws *melody.Session, filters nostr.Filters) {
 	subscriberMutex.Lock()
 	defer func() {
 		subscriberMutex.Unlock()
 	}()
 
-	subs, ok := subscribers[ws]
+	subs, ok := Subscribers[ws]
 	if !ok {
 		subs = make(map[string]*Subscriber)
-		subscribers[ws] = subs
+		Subscribers[ws] = subs
 	}
 
 	subs[id] = &Subscriber{
@@ -31,38 +31,38 @@ func setSubscriber(id string, ws *melody.Session, filters nostr.Filters) {
 	}
 }
 
-func removeSubscriberId(ws *melody.Session, id string) {
+func RemoveSubscriberId(ws *melody.Session, id string) {
 	subscriberMutex.Lock()
 	defer func() {
 		subscriberMutex.Unlock()
 	}()
 
-	subs, ok := subscribers[ws]
+	subs, ok := Subscribers[ws]
 	if ok {
-		delete(subscribers[ws], id)
+		delete(Subscribers[ws], id)
 		if len(subs) == 0 {
-			delete(subscribers, ws)
+			delete(Subscribers, ws)
 		}
 	}
 }
 
-func removeSubscriber(ws *melody.Session) {
+func RemoveSubscriber(ws *melody.Session) {
 	subscriberMutex.Lock()
 	defer subscriberMutex.Unlock()
 
-	_, ok := subscribers[ws]
+	_, ok := Subscribers[ws]
 	if ok {
-		delete(subscribers, ws)
+		delete(Subscribers, ws)
 	}
 }
 
-func notifySubscribers(event *nostr.Event) {
+func NotifySubscribers(event *nostr.Event) {
 	subscriberMutex.Lock()
 	defer func() {
 		subscriberMutex.Unlock()
 	}()
 
-	for ws, subs := range subscribers {
+	for ws, subs := range Subscribers {
 		for id, listener := range subs {
 			if !listener.filters.Match(event) {
 				continue

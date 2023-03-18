@@ -1,15 +1,19 @@
-package handlers
+package controllers
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"github.com/nbd-wtf/go-nostr"
 	"github.com/nbd-wtf/go-nostr/nip19"
 	"github.com/olahol/melody"
-	"github.com/spf13/viper"
 	"log"
-	"nostr-citadel/storage"
+	"nostr-citadel/pkg/config"
+	"nostr-citadel/pkg/libs"
+	"nostr-citadel/pkg/models"
+	"nostr-citadel/pkg/utils"
+	"time"
 )
 
 type nip11Amount []struct {
@@ -72,22 +76,48 @@ func GetPubKey(pubKey string) (string, string) {
 	return pub, npub
 }
 
+// Todo: set log levels - unify all logging
 func acceptEvent(event nostr.Event) bool {
 
-	if viper.GetBool("relay_config.public_relay") {
+	if config.Config.Relay.PublicRelay {
 		return true
 	}
-	wl := storage.GetWhitelisted(event.PubKey)
+
+	wl := models.GetWhitelisted(event.PubKey)
 	whitelisted := event.PubKey == wl.PubKey
 	nPub, _ := nip19.EncodePublicKey(event.PubKey)
 
-	if !whitelisted {
-		log.Println("Blocked event from:", nPub)
-		return false
+	if whitelisted {
+		utils.Logger(utils.LogEvent{
+			Datetime: time.Now(),
+			Content:  fmt.Sprintf("Accepted whitelisted event from: %s", nPub),
+			Level:    "INFO",
+		})
+		return true
 	}
 
-	log.Println("Accepted event from:", nPub)
-	return true
+	if config.Config.Relay.PaidRelay {
+
+		if !libs.CheckClnInvoicePaidOk(nPub) {
+			utils.Logger(utils.LogEvent{
+				Datetime: time.Now(),
+				Content:  fmt.Sprintf("Blocked non paid event from: %s", nPub),
+				Level:    "INFO",
+			})
+			return false
+		}
+
+		utils.Logger(utils.LogEvent{
+			Datetime: time.Now(),
+			Content:  fmt.Sprintf("Accepted paid event from: %s", nPub),
+			Level:    "INFO",
+		})
+
+		return true
+	}
+
+	//log.Println("Blocked event from:", nPub)
+	return false
 }
 
 func NostrEventHandler(eventType string, requestData []json.RawMessage, s *melody.Session) error {
@@ -128,13 +158,13 @@ func NostrEventHandler(eventType string, requestData []json.RawMessage, s *melod
 			return nil
 		}
 
-		ok, message := storage.WriteEvent(&event)
+		ok, message := models.WriteEvent(&event)
 
 		if ok {
 			evr, _ := s.Get("events_sent")
 			evRec := evr.(int)
 			s.Set("events_sent", evRec+1)
-			notifySubscribers(&event)
+			libs.NotifySubscribers(&event)
 		}
 		msg, _ := json.Marshal([]interface{}{"OK", event.ID, ok, message})
 		_ = s.Write(msg)
@@ -164,7 +194,7 @@ func NostrEventHandler(eventType string, requestData []json.RawMessage, s *melod
 
 			// Todo: Implement NIP-42 - Only allow authed users to get their private messages (kind-4)
 
-			events, err := storage.GetEventsQuery(filter)
+			events, err := models.GetEventsQuery(filter)
 			if err != nil {
 				log.Printf("Req Error: %v", err)
 				continue
@@ -185,7 +215,7 @@ func NostrEventHandler(eventType string, requestData []json.RawMessage, s *melod
 			}
 
 		}
-		setSubscriber(id, s, filters)
+		libs.SetSubscriber(id, s, filters)
 		sn, _ := json.Marshal([]interface{}{"EOSE", id})
 		_ = s.Write(sn)
 		return nil
@@ -195,7 +225,7 @@ func NostrEventHandler(eventType string, requestData []json.RawMessage, s *melod
 		if id == "" {
 			return nil
 		}
-		removeSubscriberId(s, id)
+		libs.RemoveSubscriberId(s, id)
 		return nil
 	case "AUTH":
 		// Todo: NIP-42
@@ -215,22 +245,32 @@ func NostrNip11() interface{} {
 	//	supportedNIPs = append(supportedNIPs, 42)
 	//}
 
-	pubKey, _ := GetPubKey(viper.GetString("relay_config.admin_npub"))
-	relayUrl := viper.GetString("relay_config.relay_url")
+	pubKey, _ := GetPubKey(config.Config.Admin.Npub)
+	relayUrl := config.Config.Relay.RelayURL
 
-	if len(relayUrl) > 1 {
-		relayUrl = relayUrl + "/invoices"
+	if config.Config.Relay.PaidRelay {
+		if len(relayUrl) > 1 {
+			relayUrl = relayUrl + "/invoices"
+		}
+	} else {
+		relayUrl = ""
 	}
 
 	nip11Info := &SpecialNIP11{
-		Name:          viper.GetString("relay_config.name"),
-		Description:   viper.GetString("relay_config.description"),
+		Name:          config.Config.Relay.Name,
+		Description:   config.Config.Relay.Description,
 		Pubkey:        pubKey,
-		Contact:       viper.GetString("relay_config.admin_email"),
+		Contact:       config.Config.Admin.Email,
 		SupportedNips: supportedNIPs,
 		Software:      "git+https://github.com/MrJohnsson77/nostr-citadel.git",
-		Version:       "0.0.1-alpha",
+		Version:       "0.0.2",
 		PaymentsURL:   relayUrl,
+	}
+
+	paidRelay := false
+
+	if config.Config.Relay.PaidRelay || !config.Config.Relay.PublicRelay {
+		paidRelay = true
 	}
 
 	// Todo: Connect it..
@@ -244,10 +284,10 @@ func NostrNip11() interface{} {
 	nip11Info.Limitation.MaxContentLength = 102400
 	nip11Info.Limitation.MinPowDifficulty = 0
 	nip11Info.Limitation.AuthRequired = false
-	nip11Info.Limitation.PaymentRequired = true
+	nip11Info.Limitation.PaymentRequired = paidRelay
 	nip11Info.Fees.Admission = nip11Amount{
 		{
-			Amount: 50000,
+			Amount: config.Config.Relay.TicketPrice * 1000,
 			Unit:   "msats",
 		},
 	}

@@ -86,7 +86,7 @@
     }
 
     const startSocket = async () => {
-        const relay = window.NostrTools.relayInit(`${location.protocol === "https" ? "wss" : "ws"}://${window.location.host}/`)
+        const relay = window.NostrTools.relayInit(`${location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/`)
         relay.on('connect', () => {
             console.log(`connected to ${relay.url}`)
         })
@@ -95,7 +95,7 @@
         })
 
         await relay.connect()
-        const lastDays = new Date(new Date().getTime() - (24 * 60 * 60 * 1000) * 30);
+        const lastDays = new Date(new Date().getTime() - (24 * 60 * 60 * 1000) * 120);
 
         // Only profiles for now...
         let sub = relay.sub([

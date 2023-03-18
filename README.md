@@ -23,6 +23,8 @@ Let me know if there's anything you'd like to see implemented.
 No prior Go experience so use it at your own peril. 💀  
 It should be [safe](https://www.youtube.com/watch?v=dQw4w9WgXcQ) to use. 
 
+There will be breaking changes up until v0.1.0
+
 As Is - No Warranty!
 
 ## Credits
@@ -41,23 +43,23 @@ Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspir
       * Using `since` to get new notes only. 
 - [x] Simple Cli
   * --port
-  * --whitelist-add
-  * --whitelist-rem (Will also delete all events saved for that npub)
+  * --whitelist -h
+  * --invoice -h
 - [x] Simple Dashboard
   * Grid of profiles saved on the relay.
   * Vanilla and minimalistic.
   * Disable in config
-- [ ] Bootstrap relay list
-- [ ] More Cli
-  * More cli things  
+- [x] Bootstrap Relays
+- [x] More Cli
+  * More cli things   
+- [x] Paid Relay
+  * Core Lightning
+  * LND (Coming soon)
+  * Others... ?
 - [ ] Export and Import
   * Export to file
   * Import from file
-  * Bootstrap from backup 
-- [ ] Paid Relay
-  * Core Lightning
-  * LND
-  * Others...
+  * Bootstrap from backup
 - [ ] Automatic SSL Termination
   * Lets Encrypt Certificate
 - [ ] Citadel Admin & Nostr Client
@@ -100,44 +102,72 @@ Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspir
 - [ ] NIP-33: [Parameterized Replaceable Events](https://github.com/nostr-protocol/nips/blob/master/33.md)
 - [ ] NIP-42: [Authentication of clients to relays](https://github.com/nostr-protocol/nips/blob/master/42.md)
 
-
 ## Requirements
 - Computer
 - Internet
 - Courage
 
 ## Get Started
-Download the config.yml and the binary for your architecture from the [release](https://github.com/MrJohnsson77/nostr-citadel/releases) section.  
-Add your npub and relay_url in the config.yml and drop the config and executable in a folder and run.  
+Download the config.yaml and the binary for your architecture from the [release](https://github.com/MrJohnsson77/nostr-citadel/releases) section.  
+Add your npub and relay_url in the config.yaml and drop the config and executable in a folder and run.  
 
-First start will create the sqlite database and bootstrap the relay by syncing the admin notes from other relays.   
-Initial startup will sync last 7 days, this can be tweaked in the config file.
+First start will create the database and bootstrap the relay by syncing the admin notes from other relays.
+Initial list of relays is downloaded from [nostr.watch](https://api.nostr.watch/v1/online).
 
-Open the relay_url in a browser to verify that the relay is running and your admin profile is there.  
-Profiles of whitelisted users will be displayed on the dashboard, it can be disabled in config.yml by setting `dashboard: false`
+A specific bootstrap relay can be set in config.yaml, this relay will be added to the list of relays used during bootstrap.
 
-Add your relay in your nostr client to connect and go.
+Open the relay_url in a browser to verify that the relay is running.
+Add your relay in your nostr client to connect and start saving your events.
+
+Profiles of whitelisted users will be displayed on the dashboard, it can be disabled in config.yaml by setting `dashboard: false`  
+If your profile doesn't show up on the dashboard, start any client and save your profile to push it to your relay.
 
 ### Operation
-Changing admin npub in config.yml will remove the current admin from whitelist and as admin.  
-In this version a change of admin won't purge the events of the old admin, only delete the event 0 (profile)
+Changing admin_npub in config.yaml will replace the old admin with the new one.  
+In this version a change of admin won't purge the events of the old admin, only delete the event with kind 0 (profile)
 
  *  Bind to specific port
     ```
-    ./nostr-citadel --port 1337
+    ./nostr-citadel start --port 1337 --loglevel INFO
     ```
   
+  
+  * Display whitelist
+    ```
+    # List whitelisted npubs  
+    
+    ./nostr-citadel whitelist --list
+    ```
+
   * Add npub to whitelist
     ```
-    # Removing a npub from the whitelist will delete all events for it too.  
-    
-    ./nostr-citadel --whitelist-add npub....
+    ./nostr-citadel whitelist --add npub....
     ```
 
   * Remove npub from whitelist
     ```
-    ./nostr-citadel --whitelist-rem npub....
+    # Removing a npub from the whitelist will delete all events for it too.  
+    
+    ./nostr-citadel whitelist --remove npub....
     ```
+
+  * Create invoice for npub
+    ```
+    ./nostr-citadel invoice --create npub....
+    ```
+    
+  * Create QR Code invoice for npub
+    ```
+    ./nostr-citadel invoice --qr npub....
+    ```
+    
+  * Verify if invoice is paid
+    ```
+    ./nostr-citadel invoice --verify npub....
+    ```
+
+### Run from binary
+Download binary for your architecture from the [releases](https://github.com/MrJohnsson77/nostr-citadel/releases) section.
 
 ### Run from source
   ```
