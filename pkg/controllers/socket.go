@@ -1,17 +1,29 @@
-package handlers
+package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/olahol/melody"
-	"log"
+	"nostr-citadel/pkg/libs"
+	"nostr-citadel/pkg/utils"
 	"time"
 )
 
 func SocketMessageHandler(m *melody.Melody) {
 
 	m.HandleConnect(func(s *melody.Session) {
-		log.Println("Client Connected:", s.Request.RemoteAddr)
-		log.Printf("Connected Clients: %d, subscriptions:%d", m.Len()+1, len(subscribers)+1)
+
+		utils.Logger(utils.LogEvent{
+			Datetime: time.Now(),
+			Content:  fmt.Sprintf("Client Connected: %s", s.Request.RemoteAddr),
+			Level:    "INFO",
+		})
+
+		utils.Logger(utils.LogEvent{
+			Datetime: time.Now(),
+			Content:  fmt.Sprintf("Connected Clients: %d, subscriptions: %d", m.Len()+1, len(libs.Subscribers)+1),
+			Level:    "INFO",
+		})
 
 		// Todo NIP-42 challenge
 		//nipChallenge := make([]byte, 8)
@@ -46,7 +58,7 @@ func SocketMessageHandler(m *melody.Melody) {
 	})
 
 	m.HandleDisconnect(func(s *melody.Session) {
-		removeSubscriber(s)
+		libs.RemoveSubscriber(s)
 		evRec, _ := s.Get("events_received")
 		evRec = evRec.(int)
 		evSen, _ := s.Get("events_sent")
@@ -54,8 +66,19 @@ func SocketMessageHandler(m *melody.Melody) {
 		connAt, _ := s.Get("connected")
 		connected := connAt.(time.Time)
 		diff := time.Now().Sub(connected).Seconds()
-		log.Printf("Client Disconnected: %s - Sent: %d events, received: %d events, connected: %.2fs", s.Request.RemoteAddr, evSen, evRec, diff)
-		log.Printf("Connected Clients: %d, subscriptions: %d", m.Len(), len(subscribers))
+
+		utils.Logger(utils.LogEvent{
+			Datetime: time.Now(),
+			Content:  fmt.Sprintf("Client Disconnected: %s - Sent: %d events, received: %d events, connected: %.2fs", s.Request.RemoteAddr, evSen, evRec, diff),
+			Level:    "INFO",
+		})
+
+		utils.Logger(utils.LogEvent{
+			Datetime: time.Now(),
+			Content:  fmt.Sprintf("Connected Clients: %d, subscriptions: %d", m.Len(), len(libs.Subscribers)),
+			Level:    "INFO",
+		})
+
 	})
 
 }

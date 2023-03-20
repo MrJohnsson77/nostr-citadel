@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <title>Nostr Citadel - Antispam - Paid Access</title>
+    <style>
+        body {
+            background: rgb(31, 41, 55);
+            margin: 10px auto;
+            width: 800px;
+            max-width: 90%;
+        }
+
+        .title {
+            text-align: center;
+            margin: 0 40px;
+        }
+
+        .tTitle {
+            color: white;
+            font-size: 2rem;
+            margin-top: 25px;
+            padding: 10px 0;
+        }
+
+        .tTitle a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            background-color: white;
+            border: 5px solid darkorange;
+            border-radius: 15px;
+            box-shadow: darkgrey;
+            padding: 20px;
+            font-size: 20px;
+            position: relative;
+            cursor: pointer;
+            text-align: center;
+        }
+
+
+    </style>
+</head>
+<body>
+<div id="header">
+    <div class="title">
+        <div class="tTitle"><a href="https://github.com/MrJohnsson77/nostr-citadel" target="_blank" rel="nofollow">Nostr
+            Citadel - The Sovereign Relay</a></div>
+    </div>
+</div>
+<div class="container">
+    <form>
+        <label>
+            Public Key:
+            <input name=pubkey />
+        </label>
+        <button>Get Invoice</button>
+    </form>
+    <p id=message></p>
+    <a id=link><canvas id=qr /></a> <br>
+    <code onclick="copyCode()" id=invoice></code>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script>
+    const message = document.getElementById("message")
+    const link = document.getElementById("link")
+    const invoice = document.getElementById("invoice")
+
+
+    const copyCode = () => {
+        const code = link.href
+        navigator.clipboard.writeText(code).then(() => {
+            alert('Invoice Copied!');
+        });
+    }
+
+    document.querySelector('form').addEventListener('submit', async ev => {
+        message.innerHTML = "";
+        link.href = "";
+        link.innerHTML = '<canvas id=qr />'
+        invoice.innerHTML = "";
+        ev.preventDefault()
+        let res = await (await fetch('/invoice?pubkey=' + ev.target.pubkey.value)).text()
+        let { bolt11, error } = JSON.parse(res)
+        if (bolt11) {
+            invoice.innerHTML = `${bolt11.substring(0,15)}...`;
+            link.href = 'lightning:' + bolt11
+            new QRious({
+                element: qr,
+                value: bolt11.toUpperCase(),
+                size: 300
+            });
+        } else {
+            message.innerHTML = error
+        }
+    })
+</script>
+
+</body>
+</html>

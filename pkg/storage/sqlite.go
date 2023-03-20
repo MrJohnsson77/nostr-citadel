@@ -4,14 +4,14 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/reflectx"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/spf13/viper"
 	"log"
+	"nostr-citadel/pkg/config"
 )
 
 var DB *sqlx.DB
 
 func InitDB() error {
-	db, err := sqlx.Connect("sqlite3", viper.GetString("database.name"))
+	db, err := sqlx.Connect("sqlite3", config.Config.Database.Name)
 
 	if err != nil {
 		log.Fatal("failed to open database:", err)

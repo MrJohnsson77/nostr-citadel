@@ -1,4 +1,4 @@
-name: Create Release & Binaries
+name: Create Release
 on:
   release:
     types: [ created ]
@@ -21,8 +21,8 @@ jobs:
           dest: /home/runner/work/nostr-citadel/builds
           race: false
           prefix: nostr-citadel-${{ env.version }}
-      - name: Compress Release
-        run: zip -r /home/runner/work/nostr-citadel/nostr-citadel-binaries-${{ env.version }}.zip /home/runner/work/nostr-citadel/builds/*
+      #      - name: Compress All Binaries
+      #        run: zip -r /home/runner/work/nostr-citadel/nostr-citadel-binaries-${{ env.version }}.zip /home/runner/work/nostr-citadel/builds/*
       - name: Delete release if any
         uses: Archaholic/action-delete-release@v1
         env:
@@ -43,9 +43,9 @@ jobs:
           files: |
             README.md
             CHANGELOG.md
-            config.yml
-            /home/runner/work/nostr-citadel/nostr-citadel-binaries-${{ env.version }}.zip 
+            config-sample.yaml
             /home/runner/work/nostr-citadel/builds/*
+      #            /home/runner/work/nostr-citadel/nostr-citadel-binaries-${{ env.version }}.zip
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
