@@ -24,7 +24,7 @@ jobs:
       #      - name: Compress All Binaries
       #        run: zip -r /home/runner/work/nostr-citadel/nostr-citadel-binaries-${{ env.version }}.zip /home/runner/work/nostr-citadel/builds/*
       - name: Delete release if any
-        uses: dev-drprasad/delete-tag-and-release@v0.2
+        uses: dev-drprasad/delete-tag-and-release@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
         with:
