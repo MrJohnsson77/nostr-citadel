@@ -139,9 +139,8 @@ func GetEventsQuery(filter *nostr.Filter) (events []nostr.Event, err error) {
 		params = append(params, filter.Limit)
 	}
 
-	query := storage.DB.Rebind(`SELECT
-	 id, pubkey, created_at, kind, tags, content, sig
-	FROM event WHERE ` +
+	query := storage.DB.Rebind(`SELECT id, pubkey, created_at, kind, tags, content, sig
+	FROM event` + " WHERE " +
 		strings.Join(conditions, " AND ") +
 		" ORDER BY created_at DESC LIMIT ?")
 
