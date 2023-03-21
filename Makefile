@@ -1,5 +1,5 @@
 build:
-	go build -o build/nostr-citadel main.go
+	go build -o bin/nostr-citadel main.go
 
 run:
 	go run main.go

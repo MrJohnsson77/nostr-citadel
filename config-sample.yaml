@@ -1,34 +1,34 @@
 admin:
-  npub: ""
-  email: ""
+  npub: "npub1.."                                                                 # Relay Admin
+  email: "hello@mrjohnsson.net"                                                   # Email for Nip11
 relay:
-  name: "Nostr Citadel"                                   # Citadel Name
-  description: "Nostr Citadel - The Sovereign Relay"      # Description
-  relay_url: "https://relay.mrjohnsson.net"               # URL to the relay
-  behind_proxy: true                                      # Behind nginx or other proxy
-  public_relay: true                                      # Allow anyone to post (If false only whitelisted npubs can post)
-  paid_relay: false                                       # Only allow paid and/or whitelisted users to post events
-  ticket_price: 1000                                      # Price in sats for access
+  name: "Nostr Citadel"                                                           # Citadel Name
+  description: "Nostr Citadel - The Sovereign Relay"                              # Citadel Description
+  relay_url: "https://relay.nostr-citadel.org"                                    # URL to the relay
+  behind_proxy: true                                                              # Behind nginx or other proxy
+  public_relay: false                                                             # Allow anyone to post (By default only whitelisted can post)
+  paid_relay: true                                                                # Only allow paid and whitelisted users to post events
+  ticket_price: 1000                                                              # Price in sats for relay write access
+  ticket_expiry: 3600                                                             # Ticket timeout in seconds (Must be paid before it expires)
   limits:
-    response_event_limit: 2000                            # Max events to send client
+    response_event_limit: 5000                                                    # How many events to max send a client
 dashboard:
-  enabled: true
+  enabled: true                                                                   # Enabled the "dashboard"
 processing:
-  cln:
-    active: false
-    node_id: ""
-    rune: ""
-    host: ""
-  lnd: # Not Supported yet.
-    active: false
-    node_id: ""
-    macaroon: ""
-    host: ""
+  processor: ""                                                                   # Processor for paid relay Core Lightning and LND are supported
+  cln:                                                                            # Core Lightning (CLN) Settings
+    node_id: ""                                                                   # CLN Node ID
+    rune: ""                                                                      # CLN Rune for access
+    host: ""                                                                      # CLN IP:PORT
+  lnd:                                                                            # LND Settings
+    cert_file: ""                                                                 # Path to LND tls certificate /home/citadel/.lnd/tls.cert
+    macaroon_file: ""                                                             # Path to LND macaroon /home/citadel/.lnd/data/chain/bitcoin/mainnet/admin.macaroon
+    rpc_host: ""                                                                  # LND IP:PORT for RPC
 importer:
-  workers: 5
-  fetchers: 30
-  import_days_on_init: 30                               # How many days of event to import on first start.
-  import_whitelisted: false                             # Also sync all events for whitelisted users, not only admin.
+  workers: 5                                                                      # PubKeys in parallel to index.
+  fetchers: 30                                                                    # Relays per PubKey to index in parallel.
+  import_days_on_init: 120                                                        # How many days of event to import on first start.
+  import_whitelisted: true                                                        # Sync all events for whitelisted users too, not only admin.
 database:
-  name: "citadel.db"
-bootstrap_relay: "wss://relay.mrjohnsson.net"           # Relay to start importing admin profile from.
+  name: "citadel.db"                                                              # Database Name
+bootstrap_relay: "wss://relay.nostr-citadel.org"                                  # Relay where to start looking for your profile.

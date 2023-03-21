@@ -8,6 +8,8 @@ Once you're up and running, the relay will actively sync data from other relays 
 By default, only admin data is synced to the relay.  
 Unless set as public, only admin and whitelisted npubs are allowed to post to the relay.
 
+You can try it out by adding `wss://relay.nostr-citadel.org` to your relays.
+
 Stay Sovereign 🤙
 
 ![Nostr Citadel](screenshots/nostr-citadel-home-small.png?raw=true "Nostr Citadel Home")
@@ -23,8 +25,7 @@ Let me know if there's anything you'd like to see implemented.
 No prior Go experience so use it at your own peril. 💀  
 It should be [safe](https://www.youtube.com/watch?v=dQw4w9WgXcQ) to use. 
 
-There will be breaking changes up until v0.1.0
-
+There will be breaking changes.  
 As Is - No Warranty!
 
 ## Credits
@@ -42,44 +43,46 @@ Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspir
     * The relay will sync every hour.
       * Using `since` to get new notes only. 
 - [x] Simple Cli
+  * --start
+  * --help
   * --port
   * --whitelist -h
   * --invoice -h
 - [x] Simple Dashboard
-  * Grid of profiles saved on the relay.
-  * Vanilla and minimalistic.
-  * Disable in config
+  * Grid of profiles active on the relay
+  * Can be disabled in config
 - [x] Bootstrap Relays
 - [x] More Cli
   * More cli things   
 - [x] Paid Relay
   * Core Lightning
-  * LND (Coming soon)
-  * Others... ?
-- [ ] Export and Import
-  * Export to file
-  * Import from file
-  * Bootstrap from backup
+  * LND
+- [ ] Cleanup Routines
+- [ ] Better Dashboard & Invoice Page
+- [ ] Blacklist
+  - IP / CIDR
+- [ ] Export and import / Backup
+  * Export & Import from file
+  * Restore from backup
 - [ ] Automatic SSL Termination
   * Lets Encrypt Certificate
-- [ ] Citadel Admin & Nostr Client
-  * Web - [Nostr Citadel Web Client](https://github.com/MrJohnsson77/nostr-citadel-watch) ( Coming "soon" )
+  * Self Issued Certificate
+- [ ] Citadel Admin & Nostr Web Client (Separate Project - Coming "soon")
+  * Web & Mobile (pwa) Client - [Nostr Citadel Web Client](https://github.com/MrJohnsson77/nostr-citadel-watch)
     * Nostr Client & Admin Dashboard for Nostr Citadel
     * Standard client functionality
       * Global
       * Followers
       * Groups
       * Notifications
-      * etc...
+      * Search
+      * ... more ...
     * Follow recommendations
     * Trending on your relay ( and others... )
     * AI support, tweak and build your own recommendation engine
-      * Export and share your models
+      * Share your own "models"
 - [ ] Additional database backends
-  * Redis
-  * PostgresSQL
-  * MongoDB
-  * MySQL
+
   
 ## Nips
 
@@ -109,7 +112,7 @@ Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspir
 
 ## Get Started
 Download the config.yaml and the binary for your architecture from the [release](https://github.com/MrJohnsson77/nostr-citadel/releases) section.  
-Add your npub and relay_url in the config.yaml and drop the config and executable in a folder and run.  
+Add your npub and relay_url in the config and drop the config and executable in a folder and start it.  
 
 First start will create the database and bootstrap the relay by syncing the admin notes from other relays.
 Initial list of relays is downloaded from [nostr.watch](https://api.nostr.watch/v1/online).
@@ -117,21 +120,19 @@ Initial list of relays is downloaded from [nostr.watch](https://api.nostr.watch/
 A specific bootstrap relay can be set in config.yaml, this relay will be added to the list of relays used during bootstrap.
 
 Open the relay_url in a browser to verify that the relay is running.
-Add your relay in your nostr client to connect and start saving your events.
-
+Add your relay in your nostr client to connect and start saving your events.  
 Profiles of whitelisted users will be displayed on the dashboard, it can be disabled in config.yaml by setting `dashboard: false`  
-If your profile doesn't show up on the dashboard, start any client and save your profile to push it to your relay.
+If your profile doesn't show up on the dashboard, start any nostr client and save your profile to push it to your relay.
 
 ### Operation
-Changing admin_npub in config.yaml will replace the old admin with the new one.  
+Changing admin.npub in config.yaml will replace the old admin with the new one.  
 In this version a change of admin won't purge the events of the old admin, only delete the event with kind 0 (profile)
 
- *  Bind to specific port
+ *  Bind to port and select loglevel
     ```
     ./nostr-citadel start --port 1337 --loglevel INFO
     ```
-  
-  
+
   * Display whitelist
     ```
     # List whitelisted npubs  

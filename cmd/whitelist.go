@@ -14,7 +14,7 @@ var (
 	cmd2 = &cobra.Command{
 		Use:    "whitelist",
 		Short:  "Manage whitelist",
-		Long:   `Add Npub or Hex to the whitelist`,
+		Long:   `Add Npub or PubKey Hex to the whitelist`,
 		Run:    cmdWhitelist,
 		Hidden: false,
 	}
@@ -58,7 +58,7 @@ func cmdWhitelist(wlCmd *cobra.Command, args []string) {
 					{npub, whitelisted.Created.Format(time.RFC822), whitelisted.Admin},
 				})
 			}
-			t.AppendFooter(table.Row{"", "Total", len(whitelist)})
+			t.AppendFooter(table.Row{fmt.Sprintf("Total Whitelisted (%d)", len(whitelist)), "", ""})
 			t.Render()
 		}
 
@@ -73,5 +73,5 @@ func init() {
 	rootCmd.AddCommand(cmd2)
 	cmd2.Flags().StringP("add", "a", "", "npub / hex to add")
 	cmd2.Flags().StringP("remove", "r", "", "npub / hex to remove")
-	cmd2.Flags().BoolP("list", "l", false, "display whitelist")
+	cmd2.Flags().BoolP("list", "l", false, "list whitelist")
 }

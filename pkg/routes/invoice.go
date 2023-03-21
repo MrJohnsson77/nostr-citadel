@@ -4,7 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"nostr-citadel/pkg/controllers"
-	"nostr-citadel/pkg/libs"
+	"nostr-citadel/pkg/libs/processing"
 )
 
 type relayInvoice struct {
@@ -14,12 +14,13 @@ type relayInvoice struct {
 
 func GetInvoice(c echo.Context) error {
 	pubKey := c.QueryParam("pubkey")
-	_, npub := controllers.GetPubKey(pubKey)
+
+	pk, npub := controllers.GetPubKey(pubKey)
 	if len(npub) < 30 {
 		payment := &relayInvoice{Bolt11: "", Error: "Invalid Npub"}
 		return c.JSON(http.StatusOK, payment)
 	} else {
-		invoice, err := libs.GenerateClnInvoice(npub)
+		invoice, err := processing.CreateInvoice(npub, pk)
 		if err != nil {
 			payment := &relayInvoice{Bolt11: "", Error: err.Error()}
 			return c.JSON(http.StatusOK, payment)
