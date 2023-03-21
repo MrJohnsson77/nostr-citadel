@@ -10,6 +10,7 @@ import (
 	"log"
 	"nostr-citadel/pkg/config"
 	"nostr-citadel/pkg/storage"
+	"nostr-citadel/pkg/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -144,8 +145,17 @@ func GetEventsQuery(filter *nostr.Filter) (events []nostr.Event, err error) {
 		strings.Join(conditions, " AND ") +
 		" ORDER BY created_at DESC LIMIT ?")
 
-	//fmt.Printf("%v\n", query)
-	//fmt.Printf("%v\n", params)
+	utils.Logger(utils.LogEvent{
+		Datetime: time.Now(),
+		Content:  fmt.Sprintf("REQ Query: %s", query),
+		Level:    "DEBUG",
+	})
+
+	utils.Logger(utils.LogEvent{
+		Datetime: time.Now(),
+		Content:  fmt.Sprintf("REQ Query Params: %s", params),
+		Level:    "DEBUG",
+	})
 
 	rows, err := storage.DB.Query(query, params...)
 	if err != nil && err != sql.ErrNoRows {
@@ -172,6 +182,12 @@ func GetEventsQuery(filter *nostr.Filter) (events []nostr.Event, err error) {
 }
 
 func WriteEvent(event *nostr.Event) (bool, string) {
+
+	utils.Logger(utils.LogEvent{
+		Datetime: time.Now(),
+		Content:  fmt.Sprintf("Write Event:\n%v", event),
+		Level:    "DEBUG",
+	})
 
 	switch event.Kind {
 
