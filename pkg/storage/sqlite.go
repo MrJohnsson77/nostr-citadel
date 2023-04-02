@@ -39,9 +39,9 @@ func InitDB() error {
 							pubkey      text not null
 								constraint whitelist_pk
 									primary key,
-							created_at  timestamp default CURRENT_TIMESTAMP not null,
 							sync        bool      default false             not null,
 							last_synced timestamp,
+							created_at  timestamp default CURRENT_TIMESTAMP not null,
 							admin       integer   default 0                 not null
 						);
 						
@@ -50,7 +50,29 @@ func InitDB() error {
 						
 						create index whitelist_pubkey_admin_index
 							on whitelist (pubkey, admin);
-    `)
+
+						create table invoice
+						(
+							pubkey      TEXT                                not null
+								constraint invoice_pk
+									primary key,
+							invoice     TEXT                                not null,
+							invoice_id  TEXT                                not null,
+							amount_msat integer                             not null,
+							paid        bool      default false             not null,
+							expires_at  timestamp,
+							created_at  timestamp default CURRENT_TIMESTAMP not null
+						);
+						
+						create index invoice_created_at_index
+							on invoice (created_at);
+						
+						create index invoice_paid_index
+							on invoice (paid);
+
+						create unique index invoice_id_index
+							on invoice (invoice_id)
+							`)
 
 	db.Mapper = reflectx.NewMapperFunc("json", sqlx.NameMapper)
 	_, _ = db.Exec("PRAGMA journal_mode=WAL")

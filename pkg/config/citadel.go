@@ -3,7 +3,9 @@ package config
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	"nostr-citadel/pkg/utils"
 	"os"
+	"time"
 )
 
 type CitadelConfig struct {
@@ -19,14 +21,15 @@ type Limits struct {
 	ResponseEventLimit int `mapstructure:"response_event_limit"`
 }
 type Relay struct {
-	Name        string `mapstructure:"name"`
-	Description string `mapstructure:"description"`
-	RelayURL    string `mapstructure:"relay_url"`
-	BehindProxy bool   `mapstructure:"behind_proxy"`
-	PublicRelay bool   `mapstructure:"public_relay"`
-	PaidRelay   bool   `mapstructure:"paid_relay"`
-	TicketPrice int    `mapstructure:"ticket_price"`
-	Limits      Limits `mapstructure:"limits"`
+	Name         string `mapstructure:"name"`
+	Description  string `mapstructure:"description"`
+	RelayURL     string `mapstructure:"relay_url"`
+	BehindProxy  bool   `mapstructure:"behind_proxy"`
+	PublicRelay  bool   `mapstructure:"public_relay"`
+	PaidRelay    bool   `mapstructure:"paid_relay"`
+	TicketPrice  int64  `mapstructure:"ticket_price"`
+	TicketExpiry int64  `mapstructure:"ticket_expiry"`
+	Limits       Limits `mapstructure:"limits"`
 }
 type Admin struct {
 	Npub  string `mapstructure:"npub"`
@@ -36,20 +39,19 @@ type Dashboard struct {
 	Enabled bool `mapstructure:"enabled"`
 }
 type Cln struct {
-	Active bool   `mapstructure:"active"`
 	NodeID string `mapstructure:"node_id"`
 	Rune   string `mapstructure:"rune"`
 	Host   string `mapstructure:"host"`
 }
 type Lnd struct {
-	Active   bool   `mapstructure:"active"`
-	NodeID   string `mapstructure:"node_id"`
-	Macaroon string `mapstructure:"macaroon"`
-	Host     string `mapstructure:"host"`
+	Macaroon    string `mapstructure:"macaroon_file"`
+	Certificate string `mapstructure:"cert_file"`
+	Host        string `mapstructure:"rpc_host"`
 }
 type Processing struct {
-	Cln Cln `mapstructure:"cln"`
-	Lnd Lnd `mapstructure:"lnd"`
+	Processor string `mapstructure:"processor"`
+	Cln       Cln    `mapstructure:"cln"`
+	Lnd       Lnd    `mapstructure:"lnd"`
 }
 type Importer struct {
 	Workers           int  `mapstructure:"workers"`
@@ -69,7 +71,11 @@ func SetConf() {
 	conf := &CitadelConfig{}
 	err := viper.Unmarshal(conf)
 	if err != nil {
-		fmt.Printf("Error: unable to decode the config, %v", err)
+		utils.Logger(utils.LogEvent{
+			Datetime: time.Now(),
+			Content:  fmt.Sprintf("Unable to decode the config:\n%v", err),
+			Level:    "ERROR",
+		})
 		os.Exit(1)
 	}
 	Config = conf

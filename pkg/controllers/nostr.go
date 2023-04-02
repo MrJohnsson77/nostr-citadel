@@ -76,16 +76,20 @@ func GetPubKey(pubKey string) (string, string) {
 	return pub, npub
 }
 
-// Todo: set log levels - unify all logging
 func acceptEvent(event nostr.Event) bool {
+	nPub, _ := nip19.EncodePublicKey(event.PubKey)
 
 	if config.Config.Relay.PublicRelay {
+		utils.Logger(utils.LogEvent{
+			Datetime: time.Now(),
+			Content:  fmt.Sprintf("Accepted public event from: %s", nPub),
+			Level:    "INFO",
+		})
 		return true
 	}
 
 	wl := models.GetWhitelisted(event.PubKey)
 	whitelisted := event.PubKey == wl.PubKey
-	nPub, _ := nip19.EncodePublicKey(event.PubKey)
 
 	if whitelisted {
 		utils.Logger(utils.LogEvent{
@@ -96,27 +100,12 @@ func acceptEvent(event nostr.Event) bool {
 		return true
 	}
 
-	if config.Config.Relay.PaidRelay {
+	utils.Logger(utils.LogEvent{
+		Datetime: time.Now(),
+		Content:  fmt.Sprintf("Blocked non paid event from: %s", nPub),
+		Level:    "INFO",
+	})
 
-		if !libs.CheckClnInvoicePaidOk(nPub) {
-			utils.Logger(utils.LogEvent{
-				Datetime: time.Now(),
-				Content:  fmt.Sprintf("Blocked non paid event from: %s", nPub),
-				Level:    "INFO",
-			})
-			return false
-		}
-
-		utils.Logger(utils.LogEvent{
-			Datetime: time.Now(),
-			Content:  fmt.Sprintf("Accepted paid event from: %s", nPub),
-			Level:    "INFO",
-		})
-
-		return true
-	}
-
-	//log.Println("Blocked event from:", nPub)
 	return false
 }
 
@@ -263,7 +252,7 @@ func NostrNip11() interface{} {
 		Contact:       config.Config.Admin.Email,
 		SupportedNips: supportedNIPs,
 		Software:      "git+https://github.com/MrJohnsson77/nostr-citadel.git",
-		Version:       "0.0.2",
+		Version:       "0.0.3",
 		PaymentsURL:   relayUrl,
 	}
 
@@ -287,7 +276,7 @@ func NostrNip11() interface{} {
 	nip11Info.Limitation.PaymentRequired = paidRelay
 	nip11Info.Fees.Admission = nip11Amount{
 		{
-			Amount: config.Config.Relay.TicketPrice * 1000,
+			Amount: int(config.Config.Relay.TicketPrice) * 1000,
 			Unit:   "msats",
 		},
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nbd-wtf/go-nostr"
+	"github.com/nbd-wtf/go-nostr/nip19"
 	"github.com/orcaman/concurrent-map/v2"
 	"nostr-citadel/pkg/config"
 	"nostr-citadel/pkg/models"
@@ -30,7 +31,7 @@ func ImportData(npub string) {
 
 	utils.Logger(utils.LogEvent{
 		Datetime: time.Now(),
-		Content:  "Worker: Running Import Jobs",
+		Content:  "Importer: Running Import Jobs",
 		Level:    "INFO",
 	})
 
@@ -51,7 +52,7 @@ func ImportData(npub string) {
 
 	// Start up workers
 	for i := 0; i < numberOfWorkers; i++ {
-		go worker(tasks, &wg)
+		go importWorker(tasks, &wg)
 	}
 
 	// Send work to workers
@@ -64,7 +65,7 @@ func ImportData(npub string) {
 
 	utils.Logger(utils.LogEvent{
 		Datetime: time.Now(),
-		Content:  fmt.Sprintf("Worker: Found a total of %d events", len(eventIndex.Items())),
+		Content:  fmt.Sprintf("Importer: Found a total of %d events", len(eventIndex.Items())),
 		Level:    "INFO",
 	})
 
@@ -83,7 +84,7 @@ func ImportData(npub string) {
 	}
 	utils.Logger(utils.LogEvent{
 		Datetime: time.Now(),
-		Content:  fmt.Sprintf("Worker: Imported %d new events", count),
+		Content:  fmt.Sprintf("Importer: Imported %d new events", count),
 		Level:    "INFO",
 	})
 }
@@ -96,12 +97,11 @@ func StartImporter() {
 
 	go func() {
 		for {
-			// Let everything initialize before start
 			time.Sleep(5 * time.Second)
-
+			// Let everything initialize before start
 			utils.Logger(utils.LogEvent{
 				Datetime: time.Now(),
-				Content:  "Worker: Running Import Jobs",
+				Content:  "Importer: Running Import Jobs",
 				Level:    "INFO",
 			})
 			plebs, err := models.GetPlebsToSync()
@@ -122,7 +122,7 @@ func StartImporter() {
 
 			// Start up workers
 			for i := 0; i < numberOfWorkers; i++ {
-				go worker(tasks, &wg)
+				go importWorker(tasks, &wg)
 			}
 
 			// Send work to workers
@@ -135,7 +135,7 @@ func StartImporter() {
 
 			utils.Logger(utils.LogEvent{
 				Datetime: time.Now(),
-				Content:  fmt.Sprintf("Worker: Found a total of %d events", len(eventIndex.Items())),
+				Content:  fmt.Sprintf("Importer: Found a total of %d events", len(eventIndex.Items())),
 				Level:    "INFO",
 			})
 
@@ -150,7 +150,7 @@ func StartImporter() {
 
 			utils.Logger(utils.LogEvent{
 				Datetime: time.Now(),
-				Content:  fmt.Sprintf("Worker: Imported %d new events", count),
+				Content:  fmt.Sprintf("Importer: Imported %d new events", count),
 				Level:    "INFO",
 			})
 
@@ -159,10 +159,11 @@ func StartImporter() {
 	}()
 }
 
-func worker(plebs <-chan models.Pleb, wg *sync.WaitGroup) {
+func importWorker(plebs <-chan models.Pleb, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for {
 		pleb, ok := <-plebs
+		npub, _ := nip19.EncodePublicKey(pleb.PubKey)
 		if !ok {
 			return
 		}
@@ -171,14 +172,14 @@ func worker(plebs <-chan models.Pleb, wg *sync.WaitGroup) {
 		wgg.Add(numberOfSubWorkers)
 		utils.Logger(utils.LogEvent{
 			Datetime: time.Now(),
-			Content:  fmt.Sprintf("Worker: Started import for PubKey %s", pleb.PubKey[:8]),
+			Content:  fmt.Sprintf("Importer: Started import for: %s", npub),
 			Level:    "INFO",
 		})
 
 		subTasks := make(chan RelaySettings)
 
 		for i := 0; i < numberOfSubWorkers; i++ {
-			go subWorker(subTasks, &wgg, pleb.PubKey)
+			go relayIndexWorker(subTasks, &wgg, pleb.PubKey)
 		}
 
 		var indexRelays map[string]Relay
@@ -192,7 +193,7 @@ func worker(plebs <-chan models.Pleb, wg *sync.WaitGroup) {
 
 		utils.Logger(utils.LogEvent{
 			Datetime: time.Now(),
-			Content:  fmt.Sprintf("Worker: Starting import from %d relays for %s", len(indexRelays), pleb.PubKey[:8]),
+			Content:  fmt.Sprintf("Importer: Starting import from %d relays for %s", len(indexRelays), npub),
 			Level:    "INFO",
 		})
 
@@ -213,13 +214,13 @@ func worker(plebs <-chan models.Pleb, wg *sync.WaitGroup) {
 		wgg.Wait()
 		utils.Logger(utils.LogEvent{
 			Datetime: time.Now(),
-			Content:  fmt.Sprintf("Worker: Finished fetching events for %s", pleb.PubKey[:8]),
+			Content:  fmt.Sprintf("Importer: Finished fetching events for %s", npub),
 			Level:    "INFO",
 		})
 	}
 }
 
-func subWorker(relaySettings chan RelaySettings, wg *sync.WaitGroup, pubKey string) {
+func relayIndexWorker(relaySettings chan RelaySettings, wg *sync.WaitGroup, pubKey string) {
 	defer wg.Done()
 	for {
 		subTask, ok := <-relaySettings

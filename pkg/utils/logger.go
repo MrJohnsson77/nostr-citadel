@@ -23,7 +23,7 @@ const (
 
 func Logger(event LogEvent) {
 
-	level := viper.GetString("loglevel") //strings.ToUpper(event.Level)
+	level := strings.ToUpper(viper.GetString("loglevel"))
 	logMessage := ""
 
 	switch level {

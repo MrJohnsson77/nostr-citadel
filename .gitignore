@@ -6,3 +6,6 @@ build
 _lab_
 build.sh
 config.yaml
+.lnd
+bin
+

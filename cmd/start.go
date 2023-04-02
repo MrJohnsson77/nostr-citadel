@@ -37,7 +37,7 @@ func cmdStart(startCmd *cobra.Command, args []string) {
 	admPk := config.Config.Admin.Npub
 	pubKey, _ := controllers.GetPubKey(admPk)
 	if len(pubKey) < 4 {
-		fmt.Printf("Enter a valid admin_npub in config.yaml (%s)\n", admPk)
+		fmt.Printf("Enter a valid admin.npub in config.yaml (%s)\n", admPk)
 		return
 	}
 	models.SetAdmin(pubKey)
@@ -89,12 +89,13 @@ func cmdStart(startCmd *cobra.Command, args []string) {
 	})
 
 	workers.StartImporter()
+	workers.StartHouseKeeper()
 	e.Logger.Fatal(e.Start(":" + serverPort))
 }
 
 func init() {
 	rootCmd.AddCommand(cmd1)
-	rootCmd.PersistentFlags().StringP("loglevel", "", "ERROR", "Log level (\"DEBUG,INFO,WARN,ERROR\")")
+	rootCmd.PersistentFlags().StringP("loglevel", "", "INFO", "Log level (\"DEBUG,INFO,WARN,ERROR\")")
 	_ = viper.BindPFlag("loglevel", rootCmd.PersistentFlags().Lookup("loglevel"))
 	cmd1.Flags().StringP("port", "p", "1337", "specify task title / heading")
 }
