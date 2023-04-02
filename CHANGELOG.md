@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v0.0.3] - Unreleased
 
 ### Added
+- LND Support for paid relay
 - More logging
-- LND Support
-- 
+- More Config
 
 ## [v0.0.2] - 2023-03-20
 

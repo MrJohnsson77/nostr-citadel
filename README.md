@@ -5,10 +5,11 @@ Nostr Citadel, a personal relay that stores and safeguards all your nostr data.
 The idea is that anyone should be able to run a relay and manage their own data in a **simple** and convenient way.
 Once you're up and running, the relay will actively sync data from other relays and create a backup locally.
 
-By default, only admin data is synced to the relay.  
-Unless set as public, only admin and whitelisted npubs are allowed to post to the relay.
+By default, admin, paid and whitelisted npubs are synced to the relay.  
+Only admin, whitelisted and paid npubs are allowed to write to the relay, unless relay is set as public in config.
 
-You can try it out by adding `wss://relay.nostr-citadel.org` to your relays.
+You can try it out by adding `wss://relay.nostr-citadel.org` to your relays.  
+DM me your npub or get an invoice at https://relay.nostr-citadel.org/invoices to get write access.
 
 Stay Sovereign 🤙
 
@@ -42,9 +43,9 @@ Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspir
     * Sync either all whitelisted npubs or only admin data (notes) to the relay
     * The relay will sync every hour.
       * Using `since` to get new notes only. 
-- [x] Simple Cli
-  * --start
+- [x] Cli
   * --help
+  * --start
   * --port
   * --whitelist -h
   * --invoice -h
@@ -52,18 +53,19 @@ Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspir
   * Grid of profiles active on the relay
   * Can be disabled in config
 - [x] Bootstrap Relays
-- [x] More Cli
-  * More cli things   
 - [x] Paid Relay
   * Core Lightning
   * LND
 - [ ] Cleanup Routines
-- [ ] Better Dashboard & Invoice Page
+- [ ] Start import of npub on Payment/Whitelist
+- [ ] CLI Import & Sync
 - [ ] Blacklist
   - IP / CIDR
-- [ ] Export and import / Backup
+- [ ] Automatic Backups
+- [ ] CLI Export and Import
   * Export & Import from file
   * Restore from backup
+- [ ] Better Dashboard & Invoice Page
 - [ ] Automatic SSL Termination
   * Lets Encrypt Certificate
   * Self Issued Certificate
@@ -122,6 +124,7 @@ A specific bootstrap relay can be set in config.yaml, this relay will be added t
 Open the relay_url in a browser to verify that the relay is running.
 Add your relay in your nostr client to connect and start saving your events.  
 Profiles of whitelisted users will be displayed on the dashboard, it can be disabled in config.yaml by setting `dashboard: false`  
+
 If your profile doesn't show up on the dashboard, start any nostr client and save your profile to push it to your relay.
 
 ### Operation

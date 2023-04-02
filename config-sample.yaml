@@ -27,7 +27,7 @@ processing:
 importer:
   workers: 5                                                                      # PubKeys in parallel to index.
   fetchers: 30                                                                    # Relays per PubKey to index in parallel.
-  import_days_on_init: 120                                                        # How many days of event to import on first start.
+  import_days_on_init: 365                                                        # How many days of event to import on first start.
   import_whitelisted: true                                                        # Sync all events for whitelisted users too, not only admin.
 database:
   name: "citadel.db"                                                              # Database Name
