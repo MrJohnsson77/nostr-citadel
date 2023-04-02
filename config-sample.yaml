@@ -7,7 +7,7 @@ relay:
   relay_url: "https://relay.nostr-citadel.org"                                    # URL to the relay
   behind_proxy: true                                                              # Behind nginx or other proxy
   public_relay: false                                                             # Allow anyone to post (By default only whitelisted can post)
-  paid_relay: true                                                                # Only allow paid and whitelisted users to post events
+  paid_relay: false                                                               # Only allow paid and whitelisted users to post events
   ticket_price: 1000                                                              # Price in sats for relay write access
   ticket_expiry: 3600                                                             # Ticket timeout in seconds (Must be paid before it expires)
   limits:
