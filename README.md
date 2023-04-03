@@ -58,7 +58,9 @@ Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspir
   * LND
 - [ ] Cleanup Routines
 - [ ] Start import of npub on Payment/Whitelist
-- [ ] CLI Import & Sync
+- [ ] More CLI
+  * Import & Sync DB
+  * Status
 - [ ] Blacklist
   - IP / CIDR
 - [ ] Automatic Backups
