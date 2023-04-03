@@ -65,7 +65,7 @@ func CreateInvoice(npub string, pubKey string) (string, error) {
 
 		utils.Logger(utils.LogEvent{
 			Datetime: time.Now(),
-			Content:  fmt.Sprintf("CLN: Issuing %d sats invoice for: %s", config.Config.Relay.TicketPrice, npub),
+			Content:  fmt.Sprintf("CLN: Issuing %d sats invoice for %s", config.Config.Relay.TicketPrice, npub),
 			Level:    "INFO",
 		})
 
@@ -100,7 +100,7 @@ func CreateInvoice(npub string, pubKey string) (string, error) {
 
 		utils.Logger(utils.LogEvent{
 			Datetime: time.Now(),
-			Content:  fmt.Sprintf("LND: Issuing %d sats invoice for: %s", config.Config.Relay.TicketPrice, npub),
+			Content:  fmt.Sprintf("LND: Issuing %d sats invoice for %s", config.Config.Relay.TicketPrice, npub),
 			Level:    "INFO",
 		})
 

@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func StartHouseKeeper() {
+func StartCitadelKeeper() {
 
 	go func() {
 		time.Sleep(10 * time.Second)
