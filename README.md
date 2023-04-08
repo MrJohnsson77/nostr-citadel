@@ -1,4 +1,4 @@
-# [Nostr Citadel - The Sovereign Relay | WiP](https://github.com/MrJohnsson77/nostr-citadel)  
+# [Nostr Citadel - The Sovereign Relay](https://github.com/MrJohnsson77/nostr-citadel)  
 
 Nostr Citadel, a personal relay that stores and safeguards all your nostr data.  
 
@@ -60,11 +60,10 @@ Thanks [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspirati
   - Automatic daily full backup
   - Simple CSV Format
   - Restore from CLI
-- [ ] Cleanup Routines
-  - Cleanup old events
+- [ ] Improve Dashboard & Invoice Page
+- [ ] Cleanup Workers
 - [ ] Blacklist
   - IP / CIDR
-- [ ] Better Dashboard & Invoice Page
 - [ ] Automatic SSL Termination
   * Lets Encrypt Certificate
   * Self Issued Certificate
