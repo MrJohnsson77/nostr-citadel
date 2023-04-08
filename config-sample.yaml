@@ -12,6 +12,11 @@ relay:
   ticket_expiry: 3600                                                             # Ticket timeout in seconds (Must be paid before it expires)
   limits:
     response_event_limit: 5000                                                    # How many events to max send a client
+backup:
+  enabled: true                                                                  # Enable daily backup worker
+  location: "backup"                                                              # Location of backup folder
+  admin_only: true                                                                # Only backup admin events
+  keep_days: 7                                                                    # How many days to save backup files
 dashboard:
   enabled: true                                                                   # Enabled the "dashboard"
 processing:

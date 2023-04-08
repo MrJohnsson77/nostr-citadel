@@ -11,6 +11,7 @@ import (
 type CitadelConfig struct {
 	Relay          Relay      `mapstructure:"relay"`
 	Admin          Admin      `mapstructure:"admin"`
+	Backup         Backup     `mapstructure:"backup"`
 	Dashboard      Dashboard  `mapstructure:"dashboard"`
 	Processing     Processing `mapstructure:"processing"`
 	Importer       Importer   `mapstructure:"importer"`
@@ -34,6 +35,12 @@ type Relay struct {
 type Admin struct {
 	Npub  string `mapstructure:"npub"`
 	Email string `mapstructure:"email"`
+}
+type Backup struct {
+	Enabled   bool   `mapstructure:"enabled"`
+	Location  string `mapstructure:"location"`
+	KeepDays  int64  `mapstructure:"keep_days"`
+	AdminOnly bool   `mapstructure:"admin_only"`
 }
 type Dashboard struct {
 	Enabled bool `mapstructure:"enabled"`

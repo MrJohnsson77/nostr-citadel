@@ -27,69 +27,6 @@ var (
 	numberOfSubWorkers = 5
 )
 
-func ImportData(npub string) {
-
-	utils.Logger(utils.LogEvent{
-		Datetime: time.Now(),
-		Content:  "Importer: Running Import Jobs",
-		Level:    "INFO",
-	})
-
-	plebs, err := models.GetPlebsToSync()
-
-	if err != nil {
-		utils.Logger(utils.LogEvent{
-			Datetime: time.Now(),
-			Content:  fmt.Sprintf("Error getting pleb to sync %s - %s", npub, err.Error()),
-			Level:    "ERROR",
-		})
-		return
-	}
-	var wg sync.WaitGroup
-
-	wg.Add(numberOfWorkers)
-	tasks := make(chan models.Pleb)
-
-	// Start up workers
-	for i := 0; i < numberOfWorkers; i++ {
-		go importWorker(tasks, &wg)
-	}
-
-	// Send work to workers
-	for i := 0; i < len(plebs); i++ {
-		tasks <- plebs[i]
-	}
-
-	close(tasks)
-	wg.Wait()
-
-	utils.Logger(utils.LogEvent{
-		Datetime: time.Now(),
-		Content:  fmt.Sprintf("Importer: Found a total of %d events", len(eventIndex.Items())),
-		Level:    "INFO",
-	})
-
-	count := 0
-	for _, event := range eventIndex.Items() {
-		ok, msg := models.WriteEvent(event)
-		if ok {
-			count++
-		} else {
-			utils.Logger(utils.LogEvent{
-				Datetime: time.Now(),
-				Content:  fmt.Sprintf("Import failure - %s", msg),
-				Level:    "ERROR",
-			})
-		}
-	}
-	utils.Logger(utils.LogEvent{
-		Datetime: time.Now(),
-		Content:  fmt.Sprintf("Importer: Imported %d new events", count),
-		Level:    "INFO",
-	})
-}
-
-// StartImporter Todo: Redo logic and structure.
 func StartImporter() {
 
 	numberOfWorkers = config.Config.Importer.Workers
@@ -105,7 +42,6 @@ func StartImporter() {
 				Level:    "INFO",
 			})
 			plebs, err := models.GetPlebsToSync()
-
 			if err != nil {
 				utils.Logger(utils.LogEvent{
 					Datetime: time.Now(),
@@ -145,7 +81,6 @@ func StartImporter() {
 				if ok {
 					count++
 				}
-
 			}
 
 			utils.Logger(utils.LogEvent{
@@ -154,6 +89,7 @@ func StartImporter() {
 				Level:    "INFO",
 			})
 
+			eventIndex.Clear()
 			time.Sleep(1 * time.Hour)
 		}
 	}()
@@ -172,7 +108,7 @@ func importWorker(plebs <-chan models.Pleb, wg *sync.WaitGroup) {
 		wgg.Add(numberOfSubWorkers)
 		utils.Logger(utils.LogEvent{
 			Datetime: time.Now(),
-			Content:  fmt.Sprintf("Importer: Started import for: %s", npub),
+			Content:  fmt.Sprintf("Importer: Started import for %s", npub),
 			Level:    "INFO",
 		})
 

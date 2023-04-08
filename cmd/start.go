@@ -89,7 +89,7 @@ func cmdStart(startCmd *cobra.Command, args []string) {
 	})
 
 	workers.StartImporter()
-	workers.StartHouseKeeper()
+	workers.StartCitadelKeeper()
 	e.Logger.Fatal(e.Start(":" + serverPort))
 }
 

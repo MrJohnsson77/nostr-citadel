@@ -10,6 +10,7 @@ type Pleb struct {
 	PubKey     string
 	Relays     string
 	LastSynced int64
+	Admin      bool
 }
 
 func SetLastSync(pubKey string) {
@@ -17,16 +18,14 @@ func SetLastSync(pubKey string) {
 }
 
 func GetPlebsToSync() (plebs []Pleb, err error) {
-	var wl []Pleb
-
 	wlSync := config.Config.Importer.ImportWhitelisted
 	query := `SELECT wl.pubkey as pubkey,coalesce(content,'') as relays,
-    coalesce(last_synced,1672527600000) as lastsynced from whitelist wl LEFT JOIN (SELECT * from event WHERE kind = 3) as e on wl.pubkey = e.pubkey`
+    coalesce(last_synced,1672527600000) as lastsynced, admin from whitelist wl LEFT JOIN (SELECT * from event WHERE kind = 3) as e on wl.pubkey = e.pubkey`
 	if wlSync {
-		err = storage.DB.Select(&wl, query)
+		err = storage.DB.Select(&plebs, query)
 	} else {
-		err = storage.DB.Select(&wl, query+" WHERE wl.sync = 1")
+		err = storage.DB.Select(&plebs, query+" WHERE wl.admin = 1")
 	}
 
-	return wl, err
+	return plebs, err
 }
