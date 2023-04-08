@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/nbd-wtf/go-nostr/nip19"
 	"nostr-citadel/pkg/config"
+	"nostr-citadel/pkg/libs"
 	"nostr-citadel/pkg/libs/processing/cln"
 	"nostr-citadel/pkg/libs/processing/lnd"
 	"nostr-citadel/pkg/models"
@@ -28,15 +29,24 @@ func StartCitadelKeeper() {
 	if len(config.Config.Processing.Processor) == 3 {
 		go func() {
 			for {
-				time.Sleep(time.Minute * 1)
+				time.Sleep(time.Minute)
 				cleanExpiredInvoices()
 			}
 		}()
 
 		go func() {
 			for {
-				time.Sleep(time.Second * 10)
+				time.Sleep(time.Second * 5)
 				checkPayments()
+			}
+		}()
+	}
+
+	if config.Config.Backup.Enabled {
+		go func() {
+			for {
+				time.Sleep(time.Hour)
+				libs.RunBackup()
 			}
 		}()
 	}

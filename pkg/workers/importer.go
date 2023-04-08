@@ -42,7 +42,6 @@ func StartImporter() {
 				Level:    "INFO",
 			})
 			plebs, err := models.GetPlebsToSync()
-
 			if err != nil {
 				utils.Logger(utils.LogEvent{
 					Datetime: time.Now(),

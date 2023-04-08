@@ -2,15 +2,14 @@
 
 Nostr Citadel, a personal relay that stores and safeguards all your nostr data.  
 
-The idea is that anyone should be able to run a relay and manage their own data in a **simple** and convenient way.
-Once you're up and running, the relay will actively sync data from other relays and create a backup locally.
+The aim is to make running a relay and managing your data easy and accessible for everyone. 
+Once you have set up your relay, it will automatically synchronize data from other relays and create a backup of your data locally, 
+ensuring you never lose any events or notes.
 
-By default, admin, paid and whitelisted npubs are synced to the relay.  
-Only admin, whitelisted and paid npubs are allowed to write to the relay, unless relay is set as public in config.
+By default, the relay will sync admin, paid, and whitelisted npubs. 
+However, only admin, whitelisted, and paid npubs will have write access to the relay, unless you choose to set it as public in the configuration settings.
 
 You can try it out by adding `wss://relay.nostr-citadel.org` to your relays.  
-DM me your npub or get an invoice at https://relay.nostr-citadel.org/invoices to get write access.
-
 Stay Sovereign 🤙
 
 ![Nostr Citadel](screenshots/nostr-citadel-home-small.png?raw=true "Nostr Citadel Home")
@@ -23,14 +22,14 @@ I will be adding the features that I'd like to see in a sweet relay.
 
 Let me know if there's anything you'd like to see implemented.
 
-No prior Go experience so use it at your own peril. 💀  
+No prior Go experience, use it at your own peril. 💀  
 It should be [safe](https://www.youtube.com/watch?v=dQw4w9WgXcQ) to use. 
 
 There will be breaking changes.  
 As Is - No Warranty!
 
 ## Credits
-Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspiration. 💜
+Thanks [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspiration. 💜
 
 ## Features / Todo
 
@@ -49,24 +48,22 @@ Thanks to [fiatjaf](https://github.com/fiatjaf/relayer) for blueprint and inspir
   * --port
   * --whitelist -h
   * --invoice -h
+  * --backup -h
 - [x] Simple Dashboard
-  * Grid of profiles active on the relay
+  * Grid of active profiles on the relay
   * Can be disabled in config
 - [x] Bootstrap Relays
 - [x] Paid Relay
   * Core Lightning
   * LND
+- [x] Simple Automated Backup
+  - Automatic daily full backup
+  - Simple CSV Format
+  - Restore from CLI
 - [ ] Cleanup Routines
-- [ ] Start import of npub on Payment/Whitelist
-- [ ] More CLI
-  * Import & Sync DB
-  * Status
+  - Cleanup old events
 - [ ] Blacklist
   - IP / CIDR
-- [ ] Automatic Backups
-- [ ] CLI Export and Import
-  * Export & Import from file
-  * Restore from backup
 - [ ] Better Dashboard & Invoice Page
 - [ ] Automatic SSL Termination
   * Lets Encrypt Certificate

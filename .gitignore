@@ -8,4 +8,5 @@ build.sh
 config.yaml
 .lnd
 bin
-
+backup
+functionallity
