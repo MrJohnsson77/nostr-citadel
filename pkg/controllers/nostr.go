@@ -252,7 +252,7 @@ func NostrNip11() interface{} {
 		Contact:       config.Config.Admin.Email,
 		SupportedNips: supportedNIPs,
 		Software:      "git+https://github.com/MrJohnsson77/nostr-citadel.git",
-		Version:       "0.0.3",
+		Version:       "0.0.4",
 		PaymentsURL:   relayUrl,
 	}
 
