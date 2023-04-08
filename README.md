@@ -168,6 +168,16 @@ In this version a change of admin won't purge the events of the old admin, only 
     ./nostr-citadel invoice --verify npub....
     ```
 
+  * Backup Relay
+    ```
+    ./nostr-citadel backup --all
+    ```
+
+  * Restore Backup to Relay
+    ```
+    ./nostr-citadel backup --restore backup/citadel-backup-events-20230407.csv
+    ```
+  
 ### Run from binary
 Download binary for your architecture from the [releases](https://github.com/MrJohnsson77/nostr-citadel/releases) section.
 
