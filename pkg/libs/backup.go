@@ -125,9 +125,16 @@ func backupEvents(backupDir string, yesterdayMonthDay string) {
 		return
 	}
 
+	var evtMSG string
+	if config.Config.Backup.AdminOnly {
+		evtMSG = fmt.Sprintf("Backup: Starting backup for admin events.")
+	} else {
+		evtMSG = fmt.Sprintf("Backup: Starting backup for all events.")
+	}
+
 	utils.Logger(utils.LogEvent{
 		Datetime: time.Now(),
-		Content:  fmt.Sprintf("Backup: Starting backup for events."),
+		Content:  evtMSG,
 		Level:    "INFO",
 	})
 
